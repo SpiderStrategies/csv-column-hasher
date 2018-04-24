@@ -45,7 +45,7 @@ public class CSVColumnHasher {
 	}
 	
 	private static String getSaltedHash(String str, byte[] salt) throws Exception {
-		if(str == null) {
+		if(str == null || str.equals("")) {
 			return "";
 		}
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
