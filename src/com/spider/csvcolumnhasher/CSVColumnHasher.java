@@ -19,7 +19,7 @@ public class CSVColumnHasher {
 
 	public static void main(String[] args) throws Exception {
 		String filePath = args[0];
-		String columnToHash = args[1];
+		String columnToHash = args[1].toLowerCase();
 		String salt = args[2]; //due to project requirements salt is not unique per-record
 		DataSet ds = read(new FileInputStream(filePath));
 		hashColumnValues(ds, columnToHash, salt);
@@ -45,6 +45,9 @@ public class CSVColumnHasher {
 	}
 	
 	private static String getSaltedHash(String str, byte[] salt) throws Exception {
+		if(str == null) {
+			return "";
+		}
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		md.update(salt);
 		byte[] bytes = md.digest(str.getBytes());
