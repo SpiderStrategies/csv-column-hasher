@@ -11,7 +11,9 @@ import java.util.Map;
 
 import com.google.common.base.Joiner;
 
-import java.security.MessageDigest;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.spec.KeySpec;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -44,17 +46,20 @@ public class CSVColumnHasher {
 		}
 	}
 	
-	private static String getSaltedHash(String str, byte[] salt) throws Exception {
+	public static String getSaltedHash(String str, byte[] salt) throws Exception {
 		if(str == null || str.equals("")) {
 			return "";
 		}
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		md.update(salt);
-		byte[] bytes = md.digest(str.getBytes());
+
+		KeySpec spec = new PBEKeySpec(str.toCharArray(), salt, 51940, 160);
+		SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		byte[] bytes = f.generateSecret(spec).getEncoded();
+		
 		StringBuilder sb = new StringBuilder();
 		for(int i=0; i< bytes.length ;i++) {
 			sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 		}
+		
 		return sb.toString();
 	}
 	
