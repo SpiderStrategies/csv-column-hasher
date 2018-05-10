@@ -40,9 +40,7 @@ public class CSVColumnHasher {
 	}
 	
 	private static void hashColumnValues(DataSet ds, String columnToHash, String salt, int iterations) throws Exception {
-		int counter = 0;
 		for(Map<String,String> record: ds.data) {
-			System.out.println(counter++);
 			String columnVal = (String) record.get(columnToHash);
 			String hashedColumnVal = getSaltedHash(columnVal, salt.getBytes(), iterations);
 			record.put(columnToHash, hashedColumnVal);
