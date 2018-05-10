@@ -23,8 +23,9 @@ public class CSVColumnHasher {
 		String filePath = args[0];
 		String columnToHash = args[1].toLowerCase();
 		String salt = args[2]; //due to project requirements salt is not unique per-record
+		int iterations = Integer.parseInt(args[3]);
 		DataSet ds = read(new FileInputStream(filePath));
-		hashColumnValues(ds, columnToHash, salt);
+		hashColumnValues(ds, columnToHash, salt, iterations);
 		
 		System.out.println(Joiner.on(",").join(ds.columns));
 		
@@ -38,20 +39,22 @@ public class CSVColumnHasher {
 		}
 	}
 	
-	private static void hashColumnValues(DataSet ds, String columnToHash, String salt) throws Exception {
+	private static void hashColumnValues(DataSet ds, String columnToHash, String salt, int iterations) throws Exception {
+		int counter = 0;
 		for(Map<String,String> record: ds.data) {
+			System.out.println(counter++);
 			String columnVal = (String) record.get(columnToHash);
-			String hashedColumnVal = getSaltedHash(columnVal, salt.getBytes());
+			String hashedColumnVal = getSaltedHash(columnVal, salt.getBytes(), iterations);
 			record.put(columnToHash, hashedColumnVal);
 		}
 	}
 	
-	public static String getSaltedHash(String str, byte[] salt) throws Exception {
+	public static String getSaltedHash(String str, byte[] salt, int iterations) throws Exception {
 		if(str == null || str.equals("")) {
 			return "";
 		}
 
-		KeySpec spec = new PBEKeySpec(str.toCharArray(), salt, 51940, 160);
+		KeySpec spec = new PBEKeySpec(str.toCharArray(), salt, iterations, 160);
 		SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		byte[] bytes = f.generateSecret(spec).getEncoded();
 		
