@@ -10,8 +10,8 @@ public class HasherTest {
 	public void test() throws Exception {
 		String input = "mysensitivedata";
 		String salt = "blah";
-		String expectedOutput = "12e8d8f3e1bbfb791b45db99748eb252b6bcae98";
-		String output = CSVColumnHasher.getSaltedHash(input, salt.getBytes());
+		String expectedOutput = "a27a312ea98e5eb5537e847c980c40f5bd7a07f6";
+		String output = CSVColumnHasher.getSaltedHash(input, salt.getBytes(), 10);
 		assertEquals(expectedOutput, output);
 	}
 

@@ -18,12 +18,16 @@ import java.security.spec.KeySpec;
 import au.com.bytecode.opencsv.CSVReader;
 
 public class CSVColumnHasher {
+	
+	static SecretKeyFactory f = null;
 
 	public static void main(String[] args) throws Exception {
 		String filePath = args[0];
 		String columnToHash = args[1].toLowerCase();
 		String salt = args[2]; //due to project requirements salt is not unique per-record
 		int iterations = Integer.parseInt(args[3]);
+		
+		f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		DataSet ds = read(new FileInputStream(filePath));
 		hashColumnValues(ds, columnToHash, salt, iterations);
 		
@@ -53,7 +57,7 @@ public class CSVColumnHasher {
 		}
 
 		KeySpec spec = new PBEKeySpec(str.toCharArray(), salt, iterations, 160);
-		SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		
 		byte[] bytes = f.generateSecret(spec).getEncoded();
 		
 		StringBuilder sb = new StringBuilder();
