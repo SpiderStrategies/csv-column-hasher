@@ -1,8 +1,7 @@
 package com.spider.csvcolumnhasher;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HasherTest {
 
@@ -11,7 +10,8 @@ public class HasherTest {
 		String input = "mysensitivedata";
 		String salt = "blah";
 		String expectedOutput = "a27a312ea98e5eb5537e847c980c40f5bd7a07f6";
-		String output = CSVColumnHasher.getSaltedHash(input, salt.getBytes(), 10);
+		CSVColumnHasher hasher = new CSVColumnHasher();
+		String output = hasher.getSaltedHash(input, salt.getBytes(), 10);
 		assertEquals(expectedOutput, output);
 	}
 

@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,17 +20,28 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class CSVColumnHasher {
 	
-	static SecretKeyFactory f = null;
+	SecretKeyFactory f = null;
+
+	public CSVColumnHasher() {
+		try {
+			f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		}
+		catch(NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
 
 	public static void main(String[] args) throws Exception {
 		String filePath = args[0];
 		String columnToHash = args[1].toLowerCase();
 		String salt = args[2]; //due to project requirements salt is not unique per-record
 		int iterations = Integer.parseInt(args[3]);
-		
-		f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		DataSet ds = read(new FileInputStream(filePath));
-		hashColumnValues(ds, columnToHash, salt, iterations);
+
+		CSVColumnHasher hasher = new CSVColumnHasher();
+
+		DataSet ds = hasher.read(new FileInputStream(filePath));
+		hasher.hashColumnValues(ds, columnToHash, salt, iterations);
 		
 		System.out.println(Joiner.on(",").join(ds.columns));
 		
@@ -43,7 +55,7 @@ public class CSVColumnHasher {
 		}
 	}
 	
-	private static void hashColumnValues(DataSet ds, String columnToHash, String salt, int iterations) throws Exception {
+	private void hashColumnValues(DataSet ds, String columnToHash, String salt, int iterations) throws Exception {
 		for(Map<String,String> record: ds.data) {
 			String columnVal = (String) record.get(columnToHash);
 			String hashedColumnVal = getSaltedHash(columnVal, salt.getBytes(), iterations);
@@ -51,7 +63,7 @@ public class CSVColumnHasher {
 		}
 	}
 	
-	public static String getSaltedHash(String str, byte[] salt, int iterations) throws Exception {
+	public String getSaltedHash(String str, byte[] salt, int iterations) throws Exception {
 		if(str == null || str.equals("")) {
 			return "";
 		}
@@ -68,7 +80,7 @@ public class CSVColumnHasher {
 		return sb.toString();
 	}
 	
-	private static DataSet read(InputStream is) throws IOException {
+	private DataSet read(InputStream is) throws IOException {
 		CSVReader reader = null;
 		try {
 			reader = new CSVReader(new InputStreamReader(is), ',');

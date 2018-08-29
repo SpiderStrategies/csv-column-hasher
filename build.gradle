@@ -1,0 +1,39 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+}
+
+plugins {
+	id 'java'
+	id 'java-library'
+}
+
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	compile "net.sf.opencsv:opencsv:2.0"
+	compile "org.junit.jupiter:junit-jupiter-api:5.2.0"
+	compile "org.junit.jupiter:junit-jupiter-engine:5.2.0"
+	compile "com.google.guava:guava:23.5-jre"
+}
+
+version = "0.1.0"
+
+task fatJar(type: Jar) {
+	manifest {
+		attributes "Implementation-Title": project.name, "Implementation-Version": project.version
+	}
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+			{
+				exclude "META-INF/*.SF"
+				exclude "META-INF/*.DSA"
+				exclude "META-INF/*.RSA"
+			}
+	with jar
+}
